@@ -1,0 +1,54 @@
+@CodePulse_HostAddress = http://localhost:5024
+
+
+GET {{CodePulse_HostAddress}}/weatherforecast
+Accept: application/json
+
+###
+
+GET {{CodePulse_HostAddress}}/api/categories
+Accept: application/json
+
+
+###
+
+POST {{CodePulse_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+    "name": "anna created name-2",
+    "urlHandle": "anna created URLHANDLE"
+}
+
+
+###
+GET {{CodePulse_HostAddress}}/api/categories/1f71bb71-6e4b-4fee-4037-08dc45f107aa
+Accept: application/json
+
+###
+DELETE {{CodePulse_HostAddress}}/api/categories/1427EAE7-19BD-4E12-A302-08DC59363EE2
+Accept: application/json
+
+
+###
+
+POST {{CodePulse_HostAddress}}/api/images
+Content-Type: multipart/form-data; boundary="XXXX"
+
+--XXXX
+Content-Disposition: form-data; name="title"
+
+title2
+--XXXX
+Content-Disposition: form-data; name="fileName"
+
+image1
+--XXXX
+Content-Disposition: form-data; name="file"; FileName="image1.jpg"
+Content-Type: image/jpeg
+
+< ../testImages/image1.jpg
+--XXXX--
+
+
+
