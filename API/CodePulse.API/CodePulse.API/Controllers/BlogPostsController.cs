@@ -1,8 +1,7 @@
 ﻿using CodePulse.API.Models.Domain;
 using CodePulse.API.Models.DTO;
-using CodePulse.API.Repositories.Implementation;
 using CodePulse.API.Repositories.Interface;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodePulse.API.Controllers
@@ -20,6 +19,7 @@ namespace CodePulse.API.Controllers
         }
         //POST: {apibaseurl}/api/blogposts
         [HttpPost]
+        [Authorize(Roles = "Writer")]
         public async Task<IActionResult> CreateBlogPost([FromBody] CreateBlogPostRequestDto request)
         {
             //Convert DTO to Domain Model
@@ -145,7 +145,7 @@ namespace CodePulse.API.Controllers
         public async Task<IActionResult> GetBlogPostByUrlHandle([FromRoute] string urlHandle)
         {
             //Get blogpost details from repository
-           var blogPost = await blogPostRepository.GetByUrlHandleAsync(urlHandle);
+            var blogPost = await blogPostRepository.GetByUrlHandleAsync(urlHandle);
 
             if (blogPost is null)
             {
@@ -181,6 +181,7 @@ namespace CodePulse.API.Controllers
         //PUT:{apibaseurl}/api/blogposts/{id}
         [HttpPut]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
 
         public async Task<IActionResult> UpdateBlogPostById([FromRoute] Guid id, UpdateBlogPostRequestDto request)
         {
@@ -238,6 +239,7 @@ namespace CodePulse.API.Controllers
         //DELETE:{apibaseurl}/api/blogposts/{id}
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
         public async Task<IActionResult> DeleteBlogPostAsync([FromRoute] Guid id)
         {
             var deletedBlogPost = await blogPostRepository.DeleteAsync(id);
