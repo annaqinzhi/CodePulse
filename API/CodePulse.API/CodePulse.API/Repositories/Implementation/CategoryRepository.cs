@@ -1,7 +1,6 @@
 ﻿using CodePulse.API.Data;
 using CodePulse.API.Models.Domain;
 using CodePulse.API.Repositories.Interface;
-using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodePulse.API.Repositories.Implementation
@@ -31,14 +30,61 @@ namespace CodePulse.API.Repositories.Implementation
             return existingCategory;
         }
 
-        public async Task<IEnumerable<Category>> GetAllAsync()
+        public async Task<IEnumerable<Category>> GetAllAsync(
+            string? query = null,
+            string? sortBy = null,
+            string? sortDirection = null,
+            int? pageNumber = 1,
+            int? pageSize = 100)
         {
-            return await dbContext.Categories.ToListAsync();
+            //Query
+            var categories = dbContext.Categories.AsQueryable();
+
+            //Filtering
+            if (string.IsNullOrWhiteSpace(query) == false)
+            {
+                categories = categories.Where(x => x.Name.Contains(query));
+            }
+
+            //Sorting
+            if (string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    var isAsc = string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase) ? true : false;
+                    categories = isAsc ? categories.OrderBy(x => x.Name) : categories.OrderByDescending(x => x.Name);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if (sortBy.Equals("URL", StringComparison.OrdinalIgnoreCase))
+                {
+                    var isAsc = string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase) ? true : false;
+                    categories = isAsc ? categories.OrderBy(x => x.UrlHandle) : categories.OrderByDescending(x => x.UrlHandle);
+                }
+            }
+
+            //Pagination
+            //pagenumber 1 pagesize 5---skip 0, take 5  [1,2,3,4,5]
+            //pagenumber 2 pagesize 5---skip 5, take 5 [6,7,8,9,10]
+            //pagenumber 3 pagesize 5---skip 10, take 5
+
+            var skipResults = (pageNumber - 1) * pageSize;
+            categories = categories.Skip(skipResults ?? 0).Take(pageSize ?? 100);
+
+
+            return await categories.ToListAsync();
         }
 
         public async Task<Category?> GetById(Guid id)
         {
-            return await dbContext.Categories.FirstOrDefaultAsync(x=>x.Id==id);
+            return await dbContext.Categories.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<int> GetCount()
+        {
+            return await dbContext.Categories.CountAsync();
         }
 
         public async Task<Category?> UpdateAsync(Category category)
@@ -52,5 +98,6 @@ namespace CodePulse.API.Repositories.Implementation
             }
             return null;
         }
+
     }
 }
